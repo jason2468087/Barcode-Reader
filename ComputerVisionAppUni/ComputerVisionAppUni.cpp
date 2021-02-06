@@ -90,9 +90,6 @@ int main()
 	int r8[7] = { 1,0,0,1,0,0,0 };
 	int r9[7] = { 1,1,1,0,1,0,0 };
 
-
-	cout << "Andy's USB camera program" << endl << "Press 'q' to quit" << endl;
-
 	// Initializes capturing video from camera and Creates window
 	Mat frame;
 	VideoCapture cap;
@@ -118,18 +115,38 @@ int main()
 	cout << "image width =" << size.width << " height =" << size.height;
 	//cout << " depth =" << frame->depth << " channels =" << frame->nChannels << endl;
 
+	int mode = 1;
 	do {
 		// Grabs and returns a frame from camera
 		cap.read(frame);
 
 		// Convert image into grey scale
+		int max = 0;
+		int min = 255;
 		for (int y = 0; y < size.height; y++)
 		{
 			for (int x = 0; x < size.width; x++)
 			{
-				uchar *row = frame.ptr<uchar>(y);//(uchar*)(frame->imageData + frame->widthStep * y);
+				uchar *row = frame.ptr<uchar>(y);
 
 				int gray = (row[x * 3] + row[x * 3 + 1] + row[x * 3 + 2]) / 3;
+				row[x * 3] = gray;
+				row[x * 3 + 1] = gray;
+				row[x * 3 + 2] = gray;
+
+				if (gray > max){max = gray;}
+				if (gray < min) {min = gray;}
+			}
+		}
+
+		// Normalise image
+
+		for (int y = 0; y < size.height; y++)
+		{
+			for (int x = 0; x < size.width; x++)
+			{
+				uchar *row = frame.ptr<uchar>(y);
+
 				if (y == size.height / 2 - 1)
 				{
 					row[x * 3] = 0;
@@ -138,16 +155,16 @@ int main()
 				}
 				else
 				{
-					row[x * 3] = gray;
-					row[x * 3 + 1] = gray;
-					row[x * 3 + 2] = gray;
+					row[x * 3] = (row[x * 3] - min)*(255 - 0) / (max - min) + 0;
+					row[x * 3 + 1] = (row[x * 3+1] - min)*(255 - 0) / (max - min) + 0;
+					row[x * 3 + 2] = (row[x * 3+2] - min)*(255 - 0) / (max - min) + 0;
 				}
-
 			}
 		}
-		
+
 		// Shows the resulting image in the window
-		imshow("Camera image",frame);
+
+		imshow("Normalised greyscale view", frame);
 		
 		// Turn Image into binary
 		for (int y = 0; y < size.height; y++)
@@ -156,8 +173,8 @@ int main()
 			{
 				uchar *row = frame.ptr<uchar>(y);//(uchar*)(frame->imageData + frame->widthStep * y);
 
-				int gray = (row[x * 3] + row[x * 3 + 1] + row[x * 3 + 2]) / 3;
-				if (gray > 135)
+				//int gray = (row[x * 3] + row[x * 3 + 1] + row[x * 3 + 2]) / 3;
+				if (row[x * 3] > 127)
 				{
 					row[x * 3] = 255;
 					row[x * 3 + 1] = 255;
@@ -169,8 +186,18 @@ int main()
 					row[x * 3 + 1] = 0;
 					row[x * 3 + 2] = 0;
 				}
+
+				if (y == size.height / 2 - 1)
+				{
+					row[x * 3] = 0;
+					row[x * 3 + 1] = 0;
+					row[x * 3 + 2] = 255;
+				}
 			}
 		}
+
+		// Shows the resulting image in the window
+		imshow("Binary view", frame);
 
 		// Turn image into lines
 		for (int y = 0; y < size.height; y++)
@@ -275,9 +302,21 @@ int main()
 
 		}
 
+		int key = cv::waitKey(5);
+		key = (key == 255) ? -1 : key;
+		if (key == 49)
+		{
+			mode = 1;
+		}
+		else if (key == 50)
+		{
+			mode = 2;
+		}
+
 	} while ('q' != waitKey(10) && currentBarcodeBinaryInt != 95);
 
 	// Decode Left Barcode
+	currentBarcodeInt = 1;
 	for (int n = 3; n < 45; n += 7)
 	{
 		int digitBinary[7] = {};
@@ -408,6 +447,11 @@ int main()
 	}
 
 	// Decode First digit
+	for (int a = 0 ; a < 6;a++)
+	{
+		cout << barcodeParityArr[a] << " ";
+	}
+	cout << endl;
 	if (compareArr(barcodeParityArr, p0, 6))
 	{
 		barcodeArr[0] = 0;
@@ -450,7 +494,7 @@ int main()
 	}
 
 	// Decode Right Barcode
-	for (int n = 50; n < 95; n += 7)
+	for (int n = 50; n < 92; n += 7)
 	{
 		int digitBinary[7] = {};
 		for (int m = 0; m < 7; m++)
@@ -524,11 +568,11 @@ int main()
 	{
 		if (barcodeParityArr[n] == 0)
 		{
-			cout << "E" << " ";
+			cout << "G" << " ";
 		}
 		else
 		{
-			cout << "O" << " ";
+			cout << "L" << " ";
 		}
 	}
 	cout << endl << endl << endl << "Barcode is:" << endl;
@@ -539,10 +583,16 @@ int main()
 
 
 	// Print the Barcode
-	do
+	while (true)
 	{
 		imshow("Camera image", frame);
-	} while ('q' != waitKey(10));
+		int key = cv::waitKey(5);
+		key = (key == 255) ? -1 : key;
+		if (key == 113)
+		{
+			break;
+		}
+	}
 	cout << "end";
 	//tidy up
 
