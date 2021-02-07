@@ -7,6 +7,10 @@ This is a C++ program which read barcode with laptop camera. It capture image in
 - C++17
 - Opencv 4.5.1
 
+## Skills
+- Barcode Algorithms
+- Opencv image processing functions
+
 ## Result
 
 Captured image in greyscale
@@ -25,7 +29,3 @@ Final result
 
 ![alt text](https://github.com/jason2468087/Barcode-Reader/blob/master/README%20Asset/Barcode%20Detector%20console%20result.png?raw=true)
 
-## Skills
-- Barcode Algorithms
-- RGB to greyscale
-- Greyscale to binary
