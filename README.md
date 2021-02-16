@@ -1,7 +1,7 @@
 # Barcode-Reader-on-labtop-webcam
 
 ## Introduction
-This is a C++ program which read barcode with laptop camera. It capture image in real time with opencv and detect any barcode that lies on the red line. Once the barcode occupy the entire screen horizontally, the program immediatly react. Then the program will analyse the binary pixel patterns and display the result on console window.
+This is a C++ program which read barcode with a laptop camera. It captures images in real-time with OpenCV and detects any barcode that lies on the red line. Once the barcode occupies the entire screen horizontally, the program immediately react. Then the program will analyse the binary pixel patterns and display the result on the console window.
 
 ## Dependencies
 - C++17
